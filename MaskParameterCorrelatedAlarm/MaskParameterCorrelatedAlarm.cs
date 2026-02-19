@@ -67,10 +67,21 @@ namespace MaskParameterCorrelatedAlarm
 
 			int dmaID = Tools.ToInt32(parts[1]);
 			int elementID = Tools.ToInt32(parts[2]);
+			int parameterID = Tools.ToInt32(parts[3]);
+			string parameterIdx = parts[4];
 			int rootAlarmID = Tools.ToInt32(parts[5]);
 			int status = Tools.ToInt32(parts[9]);
 
-			if ((AlarmStatus)status != AlarmStatus.Mask)
+			engine.GenerateInformation($"MaskParameter script run for element with ID {elementID}, parameter with ID {parameterID} and parameter Idx {parameterIdx}");
+
+			Element[] elements = engine.FindElements(new ElementFilter() { ElementID = elementID }); // Check if element still exists, will throw if not.
+			if (elements.Length != 1)
+			{
+				engine.ExitFail("RunSafe|Element with ID " + elementID + " not found.");
+				return;
+			}
+
+			if ((AlarmStatus)status != AlarmStatus.Mask && elements[0].IsActive == true)
 			{
 				AlarmTreeID alarmTreeID = new AlarmTreeID(dmaID, elementID, rootAlarmID);
 
